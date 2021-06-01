@@ -95,12 +95,6 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-function createData(name, calories, fat) {
-  return { name, calories, fat };
-}
-
-const rows = jsonData.sort((a) => a.User);
-
 const useStyles2 = makeStyles({
   table: {
     minWidth: 500,
@@ -113,6 +107,27 @@ function CustomPaginationActionsTable() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [isExpanded, setIsExpanded] = React.useState(false);
+
+  const filterData = React.useContext(FilterContext);
+
+  const mustBeShown = (row) => {
+    if(filterData.filter != 'None' && filterData.filterValue!=''){
+      if(filterData.filter == 'User'){
+        return row.User == filterData.filterValue;
+      }
+      else if(filterData.filter == 'Server'){
+        return row.Server == filterData.filterValue;
+      }
+      else{
+        return true;
+      }
+    }
+    else{
+      return true;
+    }
+  }
+
+  const rows = (jsonData.filter((row) => mustBeShown(row))).sort((row) => row.User);
 
   const handleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -217,10 +232,40 @@ function CustomPaginationActionsTable() {
   );
 }
 
+function containsElement(array,value){
+  let bool = false;
+  for(let i=0;i<array.length;i++){
+    if (array[i] == value){
+      bool = true;
+    }
+  }
+  return bool;
+}
+
 const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
+  const [values, setValues] = React.useState([]);
+
+  const getValues = () => {
+    let valuesToAdd = [];
+    console.log('jsonData:',jsonData);
+    if(filters!='None'){
+      for(let i=0;i<jsonData.length;i++){
+        console.log(jsonData[i]);
+        if(filters == 'User' && !containsElement(valuesToAdd,jsonData[i].User)){
+          valuesToAdd.append(jsonData[i].User);
+        }
+        else if(filters=='Server' && !containsElement(valuesToAdd,jsonData[i].Server)){
+          valuesToAdd.append(jsonData[i].Server);
+        }
+      }
+      setValues(valuesToAdd);
+    }
+  }
+
   const handleChange = (event) => {
     event.preventDefault();
     setFilters(event.target.value);
+    getValues();
   }
 
   const handleValueChange = (event) => {
@@ -231,13 +276,13 @@ const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
   return (
     <div>
       <div style={{margin: 'auto', minHeigth:'20%', maxWidth: '25%',backgroundColor: '#4e5d94', borderRadius: '4px', marginBottom: '1%'}}>
-        <span style={{color: '#ffffff', margin: '5%'}}>Filter by: </span>
+        <span style={{color: '#ffffff', width: '50%', padding:'3%'}}>Filter by: </span>
         <Select
           labelId="filter-select-label"
           id="filter-select"
           value={filters}
           onChange={handleChange}
-          style={{color: '#ffffff',backgroundColor: '#7289da', minWidth:'150px', maxHeigh: '90%'}}
+          style={{color: '#ffffff',backgroundColor: '#7289da', width:'50%', maxHeigh: '90%',}}
         >
           <MenuItem value={'None'}>None</MenuItem>
           <MenuItem value={'User'}>User</MenuItem>
@@ -248,15 +293,18 @@ const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
         
         {filters!='None'?
           <div>
-            <span style={{color: '#ffffff', margin: '5%'}}>Select {filters}</span>
+            <span style={{color: '#ffffff', width: '50%', padding:'3%'}}>Select {filters}</span>
             <Select
               labelId="filter-select-label"
               id="filter-select"
               value={filterValue}
               onChange={handleValueChange}
-              style={{color: '#ffffff',backgroundColor: '#7289da', minWidth:'150px', maxHeigh: '90%'}}
+              style={{color: '#ffffff',backgroundColor: '#7289da', width: '50%', maxHeigh: '90%'}}
             >
-              <MenuItem value={''}>{'Something'}</MenuItem>
+              {!!values && (values.map((row)=>
+                <MenuItem key={row} value={row}>{row}</MenuItem>
+              ))
+              }
             </Select>
           </div>
         :<></>
@@ -267,14 +315,18 @@ const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
 }
 
 
+const FilterContext = React.createContext();
+
 const ContentList = () => {
   const [filters, setFilters] = React.useState('None');
   const [filterValue, setFilterValue] = React.useState('');
 
     return(
-        <>
+        <>  
+          <FilterContext.Provider value={{'filter' : filters, 'filterValue': filterValue}}>
             <CustomPaginationActionsTable />
             <FilterSection filters={filters} setFilters={(value)=>{setFilters(value)}} filterValue={filterValue} setFilterValue={(value)=>setFilterValue(value)} />
+          </FilterContext.Provider>
         </>
     )
 }
