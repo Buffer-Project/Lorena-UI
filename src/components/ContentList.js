@@ -252,10 +252,10 @@ const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
       for(let i=0;i<jsonData.length;i++){
         console.log(jsonData[i]);
         if(filters == 'User' && !containsElement(valuesToAdd,jsonData[i].User)){
-          valuesToAdd.append(jsonData[i].User);
+          valuesToAdd.push(jsonData[i].User);
         }
         else if(filters=='Server' && !containsElement(valuesToAdd,jsonData[i].Server)){
-          valuesToAdd.append(jsonData[i].Server);
+          valuesToAdd.push(jsonData[i].Server);
         }
       }
       setValues(valuesToAdd);
@@ -265,6 +265,7 @@ const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
   const handleChange = (event) => {
     event.preventDefault();
     setFilters(event.target.value);
+    setFilterValue('');
     getValues();
   }
 
