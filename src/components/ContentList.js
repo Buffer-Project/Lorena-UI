@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
+import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
@@ -14,6 +15,7 @@ import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
+import Button from '@material-ui/core/Button';
 
 import jsonData from '../jsonFiles/comments.json';
 
@@ -108,8 +110,17 @@ function CustomPaginationActionsTable() {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [isExpanded, setIsExpanded] = React.useState(false);
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+  const handleExpand = () => {
+    setIsExpanded(!isExpanded);
+  }
+
+  // const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+
+  const chop = (text,index) => {
+    return text.slice(0,index);
+  }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -121,49 +132,69 @@ function CustomPaginationActionsTable() {
   };
 
   return (
-    <div style={{maxWidth: '80%', margin: 'auto', padding: '10%'}}>
+    <div style={{maxWidth: '80%', margin: 'auto', paddingLeft: '10%', paddingRight: '10%', paddingTop: '3%', paddingBottom: '7%'}}>
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="custom pagination table" style={{backgroundColor: '#23272A'}}>
+          <TableHead key={`head`} style={{backgroundColor: '#7289da'}}>
+            <TableRow>
+              <TableCell component="th" scope="row" style={{fontWeight: 'bold',fontSize: '18px',width: '18.5%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}}>
+                User
+              </TableCell>
+              <TableCell style={{fontWeight: 'bold',fontSize: '18px',width: '18.5%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}}>
+                Server
+              </TableCell>
+              <TableCell style={{fontWeight: 'bold',fontSize: '18px',width: '3%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}}>
+
+              </TableCell>
+              <TableCell style={{fontWeight: 'bold',fontSize: '18px',width: '55%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}} align="right">
+                Comment
+              </TableCell>
+            </TableRow>
+          </TableHead>
           <TableBody>
-            <TableRow key={`head`} style={{backgroundColor: '#2C2F33'}}>
-                <TableCell component="th" scope="row" style={{fontWeight: 'bold',fontSize: '18px',width: '20%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}}>
-                  User
-                </TableCell>
-                <TableCell style={{fontWeight: 'bold',fontSize: '18px',width: '20%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}}>
-                  Server
-                </TableCell>
-                <TableCell style={{fontWeight: 'bold',fontSize: '18px',width: '60%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}} align="right">
-                  Comment
-                </TableCell>
-              </TableRow>
             {(rowsPerPage > 0
               ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               : rows
             ).map((row) => (
               <TableRow key={row.name} style={{backgroundColor: '#2C2F33'}}>
-                <TableCell component="th" scope="row" style={{width: '20%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}}>
+                <TableCell component="th" scope="row" style={{width: '18.5%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}}>
                   {row.User}
                 </TableCell>
-                <TableCell style={{ width: '20%', color: '#ffffff', alignItems: 'center', textAlign: 'center' }}>
+                <TableCell style={{ width: '18.5%', color: '#ffffff', alignItems: 'center', textAlign: 'center' }}>
                   {row.Server}
                 </TableCell>
-                <TableCell style={{width: '60%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}} align="right">
-                  {row.Comment.lenght > 30?`${row.Comment.slice(0,30)}...`:row.Comment}
+                <TableCell style={{ width: '3%', color: '#ffffff', alignItems: 'center', textAlign: 'center' }}>
+                  {row.Comment.length > 70?
+                    <Button width="3%" style={{fontSize: '14px', color: '#99AAb5',backgroundColor: '2C2F33'}} onClick={()=>handleExpand()}>
+                      {isExpanded?'-':'+'}
+                    </Button>
+                  :<></>}
+                </TableCell>
+                <TableCell style={{width: '55%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}} align="right">
+                  {row.Comment.length > 70?
+                  <div>
+                    {/* <Button style={{fontSize: '14px', color: '#99AAb5',backgroundColor: '2C2F33'}} onClick={()=>handleExpand()}>
+                      {isExpanded?'-':'+'}
+                    </Button>
+                    {'  '} */}
+                    {isExpanded?row.Comment:`${chop(row.Comment,70)}...`}
+                  </div>
+                  :row.Comment}
                 </TableCell>
               </TableRow>
             ))}
 
-            {emptyRows > 0 && (
+            {/* {emptyRows > 0 && (
               <TableRow style={{ height: 53 * emptyRows }}>
                 <TableCell colSpan={6} />
               </TableRow>
-            )}
+            )} */}
           </TableBody>
           <TableFooter>
             <TableRow>
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                colSpan={3}
+                colSpan={4}
                 count={rows.length}
                 rowsPerPage={rowsPerPage}
                 page={page}

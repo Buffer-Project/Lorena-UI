@@ -13,14 +13,14 @@ const useStyles = makeStyles((theme) => ({
   },
   menuButton: {
     marginRight: theme.spacing(2),
-    color: '#99AAb5',
+    color: '#ffffff',
   },
   title: {
     flexGrow: 1,
-    color: '#99AAb5',
+    color: '#ffffff',
   },
   loginButton: {
-    color: '#99AAb5',
+    color: '#ffffff',
   },
 }));
 
@@ -29,7 +29,7 @@ function ButtonAppBar() {
 
   return (
     <div className={classes.root}>
-      <AppBar position="static" style={{backgroundColor: '#2C2F33', color: '99AAb5'}}>
+      <AppBar position="static" style={{backgroundColor: '#4e5d94', color: '99AAb5'}}>
         <Toolbar>
           <IconButton edge="start" className={classes.menuButton} aria-label="menu">
             <MenuIcon />
