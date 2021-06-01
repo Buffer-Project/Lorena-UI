@@ -16,6 +16,8 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import Button from '@material-ui/core/Button';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 
 import jsonData from '../jsonFiles/comments.json';
 
@@ -132,7 +134,7 @@ function CustomPaginationActionsTable() {
   };
 
   return (
-    <div style={{maxWidth: '80%', margin: 'auto', paddingLeft: '10%', paddingRight: '10%', paddingTop: '3%', paddingBottom: '7%'}}>
+    <div style={{maxWidth: '80%', margin: 'auto', paddingLeft: '10%', paddingRight: '10%', paddingTop: '3%', paddingBottom: '3%'}}>
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="custom pagination table" style={{backgroundColor: '#23272A'}}>
           <TableHead key={`head`} style={{backgroundColor: '#7289da'}}>
@@ -215,11 +217,64 @@ function CustomPaginationActionsTable() {
   );
 }
 
+const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
+  const handleChange = (event) => {
+    event.preventDefault();
+    setFilters(event.target.value);
+  }
+
+  const handleValueChange = (event) => {
+    event.preventDefault();
+    setFilterValue(event.target.value);
+  }
+
+  return (
+    <div>
+      <div style={{margin: 'auto', minHeigth:'20%', maxWidth: '25%',backgroundColor: '#4e5d94', borderRadius: '4px', marginBottom: '1%'}}>
+        <span style={{color: '#ffffff', margin: '5%'}}>Filter by: </span>
+        <Select
+          labelId="filter-select-label"
+          id="filter-select"
+          value={filters}
+          onChange={handleChange}
+          style={{color: '#ffffff',backgroundColor: '#7289da', minWidth:'150px', maxHeigh: '90%'}}
+        >
+          <MenuItem value={'None'}>None</MenuItem>
+          <MenuItem value={'User'}>User</MenuItem>
+          <MenuItem value={'Server'}>Server</MenuItem>
+        </Select>
+      </div>
+      <div style={{margin: 'auto', minHeigth:'20%', maxWidth: '25%',backgroundColor: '#4e5d94', borderRadius: '4px'}}>
+        
+        {filters!='None'?
+          <div>
+            <span style={{color: '#ffffff', margin: '5%'}}>Select {filters}</span>
+            <Select
+              labelId="filter-select-label"
+              id="filter-select"
+              value={filterValue}
+              onChange={handleValueChange}
+              style={{color: '#ffffff',backgroundColor: '#7289da', minWidth:'150px', maxHeigh: '90%'}}
+            >
+              <MenuItem value={''}>{'Something'}</MenuItem>
+            </Select>
+          </div>
+        :<></>
+        }
+      </div>
+    </div>
+  );
+}
+
 
 const ContentList = () => {
+  const [filters, setFilters] = React.useState('None');
+  const [filterValue, setFilterValue] = React.useState('');
+
     return(
         <>
             <CustomPaginationActionsTable />
+            <FilterSection filters={filters} setFilters={(value)=>{setFilters(value)}} filterValue={filterValue} setFilterValue={(value)=>setFilterValue(value)} />
         </>
     )
 }
