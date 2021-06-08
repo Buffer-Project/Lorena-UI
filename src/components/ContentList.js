@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -244,29 +244,34 @@ function containsElement(array,value){
 
 const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
   const [values, setValues] = React.useState([]);
+  // filters: valor por el que filtro: User o Server 
+  // filterValue: valor del User o Server por el que quiero filtrar
+
+  useEffect(()=>{
+    getValues();
+  },[filters])
 
   const getValues = () => {
     let valuesToAdd = [];
     console.log('jsonData:',jsonData);
-    if(filters!='None'){
-      for(let i=0;i<jsonData.length;i++){
-        console.log(jsonData[i]);
-        if(filters == 'User' && !containsElement(valuesToAdd,jsonData[i].User)){
-          valuesToAdd.push(jsonData[i].User);
-        }
-        else if(filters=='Server' && !containsElement(valuesToAdd,jsonData[i].Server)){
-          valuesToAdd.push(jsonData[i].Server);
-        }
+  // if(filters!='None'){
+    for(let i=0;i<jsonData.length;i++){
+      console.log(jsonData[i]);
+      if(filters == 'User' && !containsElement(valuesToAdd,jsonData[i].User)){
+        valuesToAdd.push(jsonData[i].User);
       }
-      setValues(valuesToAdd);
+      else if(filters=='Server' && !containsElement(valuesToAdd,jsonData[i].Server)){
+        valuesToAdd.push(jsonData[i].Server);
+      }
     }
+    setValues(valuesToAdd);
+    // }
   }
 
   const handleChange = (event) => {
     event.preventDefault();
     setFilters(event.target.value);
     setFilterValue('');
-    getValues();
   }
 
   const handleValueChange = (event) => {
@@ -303,7 +308,7 @@ const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
               style={{color: '#ffffff',backgroundColor: '#7289da', width: '50%', maxHeigh: '90%'}}
             >
               {!!values && (values.map((row)=>
-                <MenuItem key={row} value={row}>{row}</MenuItem>
+                <MenuItem key={`id${row}`} value={row}>{row}</MenuItem>
               ))
               }
             </Select>
