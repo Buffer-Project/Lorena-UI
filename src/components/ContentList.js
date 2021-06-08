@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -16,6 +16,8 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import Button from '@material-ui/core/Button';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 
 import jsonData from '../jsonFiles/comments.json';
 
@@ -93,12 +95,6 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-function createData(name, calories, fat) {
-  return { name, calories, fat };
-}
-
-const rows = jsonData.sort((a) => a.User);
-
 const useStyles2 = makeStyles({
   table: {
     minWidth: 500,
@@ -111,6 +107,27 @@ function CustomPaginationActionsTable() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [isExpanded, setIsExpanded] = React.useState(false);
+
+  const filterData = React.useContext(FilterContext);
+
+  const mustBeShown = (row) => {
+    if(filterData.filter != 'None' && filterData.filterValue!=''){
+      if(filterData.filter == 'User'){
+        return row.User == filterData.filterValue;
+      }
+      else if(filterData.filter == 'Server'){
+        return row.Server == filterData.filterValue;
+      }
+      else{
+        return true;
+      }
+    }
+    else{
+      return true;
+    }
+  }
+
+  const rows = (jsonData.filter((row) => mustBeShown(row))).sort((row) => row.User);
 
   const handleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -132,7 +149,7 @@ function CustomPaginationActionsTable() {
   };
 
   return (
-    <div style={{maxWidth: '80%', margin: 'auto', paddingLeft: '10%', paddingRight: '10%', paddingTop: '3%', paddingBottom: '7%'}}>
+    <div style={{maxWidth: '80%', margin: 'auto', paddingLeft: '10%', paddingRight: '10%', paddingTop: '3%', paddingBottom: '3%'}}>
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="custom pagination table" style={{backgroundColor: '#23272A'}}>
           <TableHead key={`head`} style={{backgroundColor: '#7289da'}}>
@@ -215,11 +232,107 @@ function CustomPaginationActionsTable() {
   );
 }
 
+function containsElement(array,value){
+  let bool = false;
+  for(let i=0;i<array.length;i++){
+    if (array[i] == value){
+      bool = true;
+    }
+  }
+  return bool;
+}
+
+const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
+  const [values, setValues] = React.useState([]);
+  // filters: valor por el que filtro: User o Server 
+  // filterValue: valor del User o Server por el que quiero filtrar
+
+  useEffect(()=>{
+    getValues();
+  },[filters])
+
+  const getValues = () => {
+    let valuesToAdd = [];
+    console.log('jsonData:',jsonData);
+  // if(filters!='None'){
+    for(let i=0;i<jsonData.length;i++){
+      console.log(jsonData[i]);
+      if(filters == 'User' && !containsElement(valuesToAdd,jsonData[i].User)){
+        valuesToAdd.push(jsonData[i].User);
+      }
+      else if(filters=='Server' && !containsElement(valuesToAdd,jsonData[i].Server)){
+        valuesToAdd.push(jsonData[i].Server);
+      }
+    }
+    setValues(valuesToAdd);
+    // }
+  }
+
+  const handleChange = (event) => {
+    event.preventDefault();
+    setFilters(event.target.value);
+    setFilterValue('');
+  }
+
+  const handleValueChange = (event) => {
+    event.preventDefault();
+    setFilterValue(event.target.value);
+  }
+
+  return (
+    <div>
+      <div style={{margin: 'auto', minHeigth:'20%', maxWidth: '25%',backgroundColor: '#4e5d94', borderRadius: '4px', marginBottom: '1%'}}>
+        <span style={{color: '#ffffff', width: '50%', padding:'3%'}}>Filter by: </span>
+        <Select
+          labelId="filter-select-label"
+          id="filter-select"
+          value={filters}
+          onChange={handleChange}
+          style={{color: '#ffffff',backgroundColor: '#7289da', width:'50%', maxHeigh: '90%',}}
+        >
+          <MenuItem value={'None'}>None</MenuItem>
+          <MenuItem value={'User'}>User</MenuItem>
+          <MenuItem value={'Server'}>Server</MenuItem>
+        </Select>
+      </div>
+      <div style={{margin: 'auto', minHeigth:'20%', maxWidth: '25%',backgroundColor: '#4e5d94', borderRadius: '4px'}}>
+        
+        {filters!='None'?
+          <div>
+            <span style={{color: '#ffffff', width: '50%', padding:'3%'}}>Select {filters}</span>
+            <Select
+              labelId="filter-select-label"
+              id="filter-select"
+              value={filterValue}
+              onChange={handleValueChange}
+              style={{color: '#ffffff',backgroundColor: '#7289da', width: '50%', maxHeigh: '90%'}}
+            >
+              {!!values && (values.map((row)=>
+                <MenuItem key={`id${row}`} value={row}>{row}</MenuItem>
+              ))
+              }
+            </Select>
+          </div>
+        :<></>
+        }
+      </div>
+    </div>
+  );
+}
+
+
+const FilterContext = React.createContext();
 
 const ContentList = () => {
+  const [filters, setFilters] = React.useState('None');
+  const [filterValue, setFilterValue] = React.useState('');
+
     return(
-        <>
+        <>  
+          <FilterContext.Provider value={{'filter' : filters, 'filterValue': filterValue}}>
             <CustomPaginationActionsTable />
+            <FilterSection filters={filters} setFilters={(value)=>{setFilters(value)}} filterValue={filterValue} setFilterValue={(value)=>setFilterValue(value)} />
+          </FilterContext.Provider>
         </>
     )
 }
