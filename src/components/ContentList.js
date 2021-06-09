@@ -111,12 +111,12 @@ function CustomPaginationActionsTable() {
   const filterData = React.useContext(FilterContext);
 
   const mustBeShown = (row) => {
-    if(filterData.filter != 'None' && filterData.filterValue!=''){
-      if(filterData.filter == 'User'){
-        return row.User == filterData.filterValue;
+    if(filterData.filter !== 'None' && filterData.filterValue!==''){
+      if(filterData.filter === 'User'){
+        return row.User === filterData.filterValue;
       }
-      else if(filterData.filter == 'Server'){
-        return row.Server == filterData.filterValue;
+      else if(filterData.filter === 'Server'){
+        return row.Server === filterData.filterValue;
       }
       else{
         return true;
@@ -235,7 +235,7 @@ function CustomPaginationActionsTable() {
 function containsElement(array,value){
   let bool = false;
   for(let i=0;i<array.length;i++){
-    if (array[i] == value){
+    if (array[i] === value){
       bool = true;
     }
   }
@@ -248,25 +248,26 @@ const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
   // filterValue: valor del User o Server por el que quiero filtrar
 
   useEffect(()=>{
-    getValues();
-  },[filters])
-
-  const getValues = () => {
+    const getValues = () => {
     let valuesToAdd = [];
     console.log('jsonData:',jsonData);
-  // if(filters!='None'){
+    // if(filters!='None'){
     for(let i=0;i<jsonData.length;i++){
       console.log(jsonData[i]);
-      if(filters == 'User' && !containsElement(valuesToAdd,jsonData[i].User)){
+      if(filters === 'User' && !containsElement(valuesToAdd,jsonData[i].User)){
         valuesToAdd.push(jsonData[i].User);
       }
-      else if(filters=='Server' && !containsElement(valuesToAdd,jsonData[i].Server)){
+      else if(filters==='Server' && !containsElement(valuesToAdd,jsonData[i].Server)){
         valuesToAdd.push(jsonData[i].Server);
       }
     }
     setValues(valuesToAdd);
     // }
   }
+    getValues();
+  },[filters])
+
+
 
   const handleChange = (event) => {
     event.preventDefault();
@@ -297,7 +298,7 @@ const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
       </div>
       <div style={{margin: 'auto', minHeigth:'20%', maxWidth: '25%',backgroundColor: '#4e5d94', borderRadius: '4px'}}>
         
-        {filters!='None'?
+        {filters!=='None'?
           <div>
             <span style={{color: '#ffffff', width: '50%', padding:'3%'}}>Select {filters}</span>
             <Select
