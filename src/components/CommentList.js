@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -15,9 +15,9 @@ import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
-import Button from '@material-ui/core/Button';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
+
+import Comment from './Comment.js';
+import CommentFilters from './CommentFilters';
 
 import jsonData from '../jsonFiles/comments.json';
 
@@ -106,7 +106,6 @@ function CustomPaginationActionsTable() {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [isExpanded, setIsExpanded] = React.useState(false);
 
   const filterData = React.useContext(FilterContext);
 
@@ -129,15 +128,7 @@ function CustomPaginationActionsTable() {
 
   const rows = (jsonData.filter((row) => mustBeShown(row))).sort((row) => row.User);
 
-  const handleExpand = () => {
-    setIsExpanded(!isExpanded);
-  }
-
   // const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-
-  const chop = (text,index) => {
-    return text.slice(0,index);
-  }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -173,39 +164,8 @@ function CustomPaginationActionsTable() {
               ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               : rows
             ).map((row) => (
-              <TableRow key={row.name} style={{backgroundColor: '#2C2F33'}}>
-                <TableCell component="th" scope="row" style={{width: '18.5%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}}>
-                  {row.User}
-                </TableCell>
-                <TableCell style={{ width: '18.5%', color: '#ffffff', alignItems: 'center', textAlign: 'center' }}>
-                  {row.Server}
-                </TableCell>
-                <TableCell style={{ width: '3%', color: '#ffffff', alignItems: 'center', textAlign: 'center' }}>
-                  {row.Comment.length > 70?
-                    <Button width="3%" style={{fontSize: '14px', color: '#99AAb5',backgroundColor: '2C2F33'}} onClick={()=>handleExpand()}>
-                      {isExpanded?'-':'+'}
-                    </Button>
-                  :<></>}
-                </TableCell>
-                <TableCell style={{width: '55%', color: '#ffffff', alignItems: 'center', textAlign: 'center'}} align="right">
-                  {row.Comment.length > 70?
-                  <div>
-                    {/* <Button style={{fontSize: '14px', color: '#99AAb5',backgroundColor: '2C2F33'}} onClick={()=>handleExpand()}>
-                      {isExpanded?'-':'+'}
-                    </Button>
-                    {'  '} */}
-                    {isExpanded?row.Comment:`${chop(row.Comment,70)}...`}
-                  </div>
-                  :row.Comment}
-                </TableCell>
-              </TableRow>
+              <Comment row={row} />
             ))}
-
-            {/* {emptyRows > 0 && (
-              <TableRow style={{ height: 53 * emptyRows }}>
-                <TableCell colSpan={6} />
-              </TableRow>
-            )} */}
           </TableBody>
           <TableFooter>
             <TableRow>
@@ -232,113 +192,23 @@ function CustomPaginationActionsTable() {
   );
 }
 
-function containsElement(array,value){
-  let bool = false;
-  for(let i=0;i<array.length;i++){
-    if (array[i] === value){
-      bool = true;
-    }
-  }
-  return bool;
-}
-
-const FilterSection = ({filters,setFilters,filterValue,setFilterValue}) => {
-  const [values, setValues] = React.useState([]);
-  // filters: valor por el que filtro: User o Server 
-  // filterValue: valor del User o Server por el que quiero filtrar
-
-  useEffect(()=>{
-    const getValues = () => {
-    let valuesToAdd = [];
-    console.log('jsonData:',jsonData);
-    // if(filters!='None'){
-    for(let i=0;i<jsonData.length;i++){
-      console.log(jsonData[i]);
-      if(filters === 'User' && !containsElement(valuesToAdd,jsonData[i].User)){
-        valuesToAdd.push(jsonData[i].User);
-      }
-      else if(filters==='Server' && !containsElement(valuesToAdd,jsonData[i].Server)){
-        valuesToAdd.push(jsonData[i].Server);
-      }
-    }
-    setValues(valuesToAdd);
-    // }
-  }
-    getValues();
-  },[filters])
-
-
-
-  const handleChange = (event) => {
-    event.preventDefault();
-    setFilters(event.target.value);
-    setFilterValue('');
-  }
-
-  const handleValueChange = (event) => {
-    event.preventDefault();
-    setFilterValue(event.target.value);
-  }
-
-  return (
-    <div>
-      <div style={{margin: 'auto', minHeigth:'20%', maxWidth: '25%',backgroundColor: '#4e5d94', borderRadius: '4px', marginBottom: '1%'}}>
-        <span style={{color: '#ffffff', width: '50%', padding:'3%'}}>Filter by: </span>
-        <Select
-          labelId="filter-select-label"
-          id="filter-select"
-          value={filters}
-          onChange={handleChange}
-          style={{color: '#ffffff',backgroundColor: '#7289da', width:'50%', maxHeigh: '90%',}}
-        >
-          <MenuItem value={'None'}>None</MenuItem>
-          <MenuItem value={'User'}>User</MenuItem>
-          <MenuItem value={'Server'}>Server</MenuItem>
-        </Select>
-      </div>
-      <div style={{margin: 'auto', minHeigth:'20%', maxWidth: '25%',backgroundColor: '#4e5d94', borderRadius: '4px'}}>
-        
-        {filters!=='None'?
-          <div>
-            <span style={{color: '#ffffff', width: '50%', padding:'3%'}}>Select {filters}</span>
-            <Select
-              labelId="filter-select-label"
-              id="filter-select"
-              value={filterValue}
-              onChange={handleValueChange}
-              style={{color: '#ffffff',backgroundColor: '#7289da', width: '50%', maxHeigh: '90%'}}
-            >
-              {!!values && (values.map((row)=>
-                <MenuItem key={`id${row}`} value={row}>{row}</MenuItem>
-              ))
-              }
-            </Select>
-          </div>
-        :<></>
-        }
-      </div>
-    </div>
-  );
-}
-
-
 const FilterContext = React.createContext();
 
-const ContentList = () => {
+const CommentList = () => {
   const [filters, setFilters] = React.useState('None');
   const [filterValue, setFilterValue] = React.useState('');
 
     return(
         <>  
           <FilterContext.Provider value={{'filter' : filters, 'filterValue': filterValue}}>
+            <CommentFilters filterTypes={filters} setFilterTypes={(value)=>{setFilters(value)}} filterValue={filterValue} setFilterValue={(value)=>setFilterValue(value)} jsonData={jsonData} />
             <CustomPaginationActionsTable />
-            <FilterSection filters={filters} setFilters={(value)=>{setFilters(value)}} filterValue={filterValue} setFilterValue={(value)=>setFilterValue(value)} />
           </FilterContext.Provider>
         </>
     )
 }
 
-export default ContentList;
+export default CommentList;
 
 //Consuiderar en el campo commnets:
 

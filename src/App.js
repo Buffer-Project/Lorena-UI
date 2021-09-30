@@ -1,13 +1,13 @@
 import './App.css';
 
 import NavBar from './components/NavBar.js';
-import ContentList from './components/ContentList.js';
+import CommentList from './components/CommentList.js';
 
 function App() {
   return (
     <div className="App">
       <NavBar />
-      <ContentList />
+      <CommentList />
     </div>
   );
 }
